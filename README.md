@@ -5,3 +5,10 @@ jsmpeg.js is from  https://github.com/phoboslab/jsmpeg
 
 broadway js is from https://github.com/mbebenita/Broadway
 
+just run  websocketvideostream.exe
+
+then,u can see video here:
+
+http://127.0.0.1:8080/h264/h264.html
+
+http://127.0.0.1:8080/mpeg1/mpeg1.html
