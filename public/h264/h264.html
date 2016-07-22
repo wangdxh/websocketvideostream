@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=320, initial-scale=1"/>
+	<title>h264 streaming</title>
+	<style type="text/css">
+		body {
+			background: #333;
+			text-align: center;
+			margin-top: 10%;
+		}
+		#videoCanvas {
+			/* Always stretch the canvas to 640x480, regardless of its
+			internal size. */
+			width: 640px;
+			height: 480px;
+		}
+	</style>
+</head>
+<body>
+	<!-- The Canvas size specified here is the "initial" internal resolution. jsmpeg will
+		change this internal resolution to whatever the source provides. The size the
+		canvas is displayed on the website is dictated by the CSS style.
+	-->
+	<!--
+	<canvas id="videoCanvas" width="640" height="480">
+		<p>
+			Please use a browser that supports the Canvas Element, like
+			<a href="http://www.google.com/chrome">Chrome</a>,
+			<a href="http://www.mozilla.com/firefox/">Firefox</a>,
+			<a href="http://www.apple.com/safari/">Safari</a> or Internet Explorer 10
+		</p>
+	</canvas>
+	-->
+	<script type="text/javascript" src="Decoder.js"></script>
+  <script type="text/javascript" src="YUVCanvas.js"></script>
+  <script type="text/javascript" src="Player.js"></script>
+	
+	<script type="text/javascript">
+				
+		var player = new Player({size: {
+        width: 640,
+        height: 320
+         }});
+    
+		document.body.appendChild(player.canvas);
+		
+		var strhost = "ws://" + window.location.host + "/wsh264";
+		// Setup the WebSocket connection and start the player
+		var client = new WebSocket( strhost );
+		
+		
+   	client.binaryType = 'arraybuffer';
+   	
+        client.onopen = function(evt) { 
+            onOpen(evt) 
+        }; 
+        client.onclose = function(evt) { 
+            onClose(evt) 
+        }; 
+        client.onmessage = function(evt) { 
+            onMessage(evt) 
+        }; 
+        client.onerror = function(evt) { 
+            onError(evt) 
+        }; 	
+        
+    function onOpen(evt) { 
+            	
+        alert("open");
+    }  
+ 
+    function onClose(evt) { 
+        alert("close");
+    }  
+ 
+    function onMessage(evt) { 
+        var messageData = new Uint8Array(evt.data);       
+        player.decode(messageData);
+    }  
+ 
+    function onError(evt) { 
+        alert("error");
+    }  
+		
+	</script>
+</body>
+</html>
