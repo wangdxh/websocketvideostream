@@ -22,7 +22,7 @@ func wsH264(ws *websocket.Conn) {
 	}
 	defer fi.Close()
   
-	msg := make([]byte, 1024*512)
+	msg := make([]byte, 1024*512)	
 	lenBytes := make([]byte, 4)
 	for {
 		time.Sleep(40 * time.Millisecond)
@@ -38,6 +38,51 @@ func wsH264(ws *websocket.Conn) {
     var lenreal int32
     binary.Read(b_buf, binary.LittleEndian, &lenreal)
     
+		log.Println(lenreal)
+		
+		n, err := fi.Read(msg[0:lenreal])
+		if (err != nil && err != io.EOF) || n != int(lenreal) {
+			log.Println(err)
+			time.Sleep(1 * time.Second)
+			break
+		}
+		
+		err = websocket.Message.Send(ws, msg[:n])
+		if err != nil {
+			log.Println(err)
+			break
+		}
+	}
+
+	log.Println("send over socket\n")
+}
+
+func wsflv(ws *websocket.Conn) {
+	fmt.Printf("new socket\n")
+
+	fi, err := os.Open("./test.flv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fi.Close()
+  
+	msg := make([]byte, 1024*5)	
+	
+	for {
+		time.Sleep(4 * time.Millisecond)
+		
+		/*lenNum, err := fi.Read(lenBytes)
+		if (err != nil && err != io.EOF) || lenNum != 4 {
+			log.Println(err)
+			time.Sleep(1 * time.Second)
+			break
+		}*/
+		
+		
+    var lenreal int32
+    lenreal = 1024*5;
+    
+		log.Println(lenreal)
 		
 		n, err := fi.Read(msg[0:lenreal])
 		if (err != nil && err != io.EOF) || n != int(lenreal) {
@@ -100,6 +145,8 @@ func wsMpeg1(ws *websocket.Conn) {
 func main() {
 	http.Handle("/wsh264", websocket.Handler(wsH264))
 	http.Handle("/wsmpeg", websocket.Handler(wsMpeg1))
+	http.Handle("/wsflv", websocket.Handler(wsflv))
+	
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 
 	err := http.ListenAndServe(":8080", nil)
