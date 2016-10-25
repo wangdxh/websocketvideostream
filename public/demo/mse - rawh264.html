@@ -1,0 +1,52 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>MseLive</title>
+    <link href="video-js.css" rel="stylesheet">
+    <!--<link href="http://vjs.zencdn.net/5.8.8/video-js.css" rel="stylesheet">-->
+    <script src="videojs-ie8.min.js"></script>
+    <!--<script src="http://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>-->
+</head>
+<body>
+    <video id="my-video" autoplay controls></video>
+    <script src="video.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/5.10.2/video.js"></script>-->
+    <script src="mux.js"></script>
+    <script src="flow-mux.js"></script>
+    <script src="myflow.js"></script>
+    <script>
+        // application.
+        var mediaSource = new MediaSource();
+
+        var video = document.getElementById("my-video");
+        video.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', function(_){
+            //var audioSourceBuffer = mediaSource.addSourceBuffer('video/mp4;codecs="mp4a.40.2"');
+            var videoSourceBuffer = mediaSource.addSourceBuffer('video/mp4;codecs="avc1.42E01E"');
+
+            var flow = new FlowTransmuxer();
+
+            // append mp4 segment to mse.
+            flow.on('data', function(segment){
+                if (segment.type == 'audio') {
+                    //audioSourceBuffer.appendBuffer(segment.data.buffer);
+                } else {
+                    videoSourceBuffer.appendBuffer(segment.data.buffer);
+                }
+            });
+
+            //var url = "ws://127.0.0.1:8088/live/livestream.flv";
+            //var url = "ws://182.92.80.26:8088/live/livestream.flv?domain=hlsplus.ossrs.net";
+            //var url = "ws://127.0.0.1:8080/wsflv";
+            var url = "ws://" + window.location.host + "/wsh264";
+            console.log('start play flow ' + url);
+            flow.src(url);
+        });
+    </script>
+</body>
+</html>
